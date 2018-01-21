@@ -21,7 +21,7 @@ const (
 	//PROJECT_ID = "around-xxx"
 	//BT_INSTANCE = "around-post"
 	// Needs to update this URL if you deploy it to cloud.
-	ES_URL = "http://54.245.198.68:9200"
+	ES_URL = "http://34.217.16.145:9200"//elastic search url
 	PROJECT_ID = "around-190005"
 	BT_INSTANCE = "around-post"
 
@@ -55,8 +55,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	if !exists {
+	if !exists {//if elastic search does not have anything, we add mapping into the elastic search.
 		// Create a new index.
+		//相当于数据库中的schema，用来约束字段的类型，不过 Elasticsearch 的 mapping 可以不显示地指定、自动根据文档数据创建。
+		//similar to create database, we define the type of each column;
 		mapping := `{
                     "mappings":{
                            "post":{
@@ -67,7 +69,7 @@ func main() {
                                   }
                            }
                     }
-             }
+             	}
              `
 		_, err := client.CreateIndex(INDEX).Body(mapping).Do()
 		if err != nil {
@@ -90,7 +92,7 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var p Post
 
-	if err := decoder.Decode(&p); err != nil {
+	if err := decoder.Decode(&p); err != nil {//get all json data in string to struct p
 		panic(err)
 		return
 	}
@@ -107,7 +109,7 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	}
 	id := uuid.New()
 	_, err = client.Index().
-		Index(INDEX).
+		Index(INDEX).//Index is like the database name
 		Type(TYPE).
 		Id(id).
 		BodyJson(p).
@@ -158,7 +160,7 @@ func handlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	//following is the response back to the user
 	fmt.Println("Received one request for search")
-	lat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
+	lat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)//_ means that if it is error, we do not care about it.
 	lon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
 	// range is optional
 	ran := DISTANCE
