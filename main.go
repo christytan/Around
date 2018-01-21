@@ -22,7 +22,7 @@ const (
 	//BT_INSTANCE = "around-post"
 	// Needs to update this URL if you deploy it to cloud.
 	ES_URL = "http://34.217.16.145:9200"//elastic search url
-	PROJECT_ID = "around-190005"
+	PROJECT_ID = "around-1111"
 	BT_INSTANCE = "around-post"
 
 )
@@ -101,6 +101,7 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 
 	//recieve client post json obj and store it to the elastic search
 
+	//store post to elastic search
 	// Create a client - create connection to elastic search
 	client, err := elastic.NewClient(elastic.SetURL(ES_URL), elastic.SetSniff(false))
 	if err != nil {
@@ -124,6 +125,9 @@ func handlerPost(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	// you must update project name here
 
+
+
+	//store post to bigtable
 	bt_client, err := bigtable.NewClient(ctx, PROJECT_ID, BT_INSTANCE)
 	if err != nil {
 		panic(err)
